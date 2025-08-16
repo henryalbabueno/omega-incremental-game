@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Omega Incremental Game</title>
+    <style>
+        body { font-family: Arial; text-align: center; background-color: #111; color: white; }
+        h1 { color: #ffcc00; }
+        button { padding: 10px 20px; font-size: 16px; margin: 5px; }
+        .shop { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Omega Incremental Game</h1>
+    <p>Points: <span id="points">0</span></p>
+    <button onclick="gainPoints()">Gain Point</button>
+
+    <div class="shop">
+        <h2>Shop</h2>
+        <button onclick="buyAutoClicker()">Buy Auto-Clicker (Cost: 50)</button>
+        <p>Auto-Clickers: <span id="autoClickers">0</span></p>
+    </div>
+
+    <script>
+        let points = 0;
+        let autoClickers = 0;
+
+        function gainPoints(amount = 1) {
+            points += amount;
+            updateDisplay();
+        }
+
+        function buyAutoClicker() {
+            if (points >= 50) {
+                points -= 50;
+                autoClickers++;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById("points").textContent = formatOmega(points);
+            document.getElementById("autoClickers").textContent = autoClickers;
+        }
+
+        function formatOmega(num) {
+            if (num <= 999) return num;
+
+            let tier = 0;
+            while (num > 999) {
+                num -= 1000;
+                tier++;
+            }
+
+            let omegaNotation = "";
+            if (tier < 10) {
+                omegaNotation = "ω" + (tier > 1 ? tier : "");
+            } else if (tier < 100) {
+                omegaNotation = "ω²";
+            }
+
+            return `${omegaNotation} + ${num}`;
+        }
+
+        // Auto-clicker tick every second
+        setInterval(() => {
+            if (autoClickers > 0) {
+                gainPoints(autoClickers);
+            }
+        }, 1000);
+    </script>
+</body>
+  </html>
