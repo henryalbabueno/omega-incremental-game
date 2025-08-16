@@ -1,12 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Omega Incremental Game</title>
+    <!-- Prevent mobile zoom -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Noto Sans font -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial; text-align: center; background-color: #111; color: white; }
+        body {
+            font-family: 'Noto Sans', Arial, sans-serif;
+            text-align: center;
+            background-color: #111;
+            color: white;
+            user-select: none;
+            touch-action: manipulation;
+            margin: 0;
+            padding: 20px;
+        }
         h1 { color: #ffcc00; }
-        button { padding: 10px 20px; font-size: 16px; margin: 5px; }
+        button { padding: 12px 24px; font-size: 16px; margin: 5px; cursor: pointer; }
         .shop { margin-top: 20px; }
     </style>
 </head>
@@ -25,49 +38,63 @@
         let points = 0;
         let autoClickers = 0;
 
+        // Device checker
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        if(isMobile){
+            console.log("Mobile device detected");
+        } else {
+            console.log("Desktop device detected");
+        }
+
         function gainPoints(amount = 1) {
             points += amount;
             updateDisplay();
         }
 
         function buyAutoClicker() {
-            if (points >= 50) {
+            if(points >= 50){
                 points -= 50;
                 autoClickers++;
                 updateDisplay();
             }
         }
 
-        function updateDisplay() {
+        function updateDisplay(){
             document.getElementById("points").textContent = formatOmega(points);
             document.getElementById("autoClickers").textContent = autoClickers;
         }
 
-        function formatOmega(num) {
-            if (num <= 999) return num;
+        function formatOmega(num){
+            if(num <= 999) return num;
 
             let tier = 0;
-            while (num > 999) {
+            while(num > 999){
                 num -= 1000;
                 tier++;
             }
 
             let omegaNotation = "";
-            if (tier < 10) {
-                omegaNotation = "ω" + (tier > 1 ? tier : "");
-            } else if (tier < 100) {
-                omegaNotation = "ω²";
-            }
+            if(tier < 10) omegaNotation = "ω" + (tier > 1 ? tier : "");
+            else if(tier < 100) omegaNotation = "ω²";
+            // Extend tiers as needed
 
             return `${omegaNotation} + ${num}`;
         }
 
         // Auto-clicker tick every second
-        setInterval(() => {
-            if (autoClickers > 0) {
-                gainPoints(autoClickers);
+        setInterval(()=>{
+            if(autoClickers > 0) gainPoints(autoClickers);
+        },1000);
+
+        // Prevent double-tap zoom on mobile
+        let lastTouch = 0;
+        document.addEventListener('touchend', function(event){
+            const now = Date.now();
+            if(now - lastTouch <= 300){
+                event.preventDefault();
             }
-        }, 1000);
+            lastTouch = now;
+        }, false);
     </script>
 </body>
-  </html>
+</html>
