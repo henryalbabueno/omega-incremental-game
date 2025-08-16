@@ -19,7 +19,20 @@
             padding: 20px;
         }
         h1 { color: #ffcc00; }
-        button { padding: 12px 24px; font-size: 16px; margin: 5px; cursor: pointer; }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 12px; /* Rounded buttons */
+            border: none;
+            background-color: #333;
+            color: #fff;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #555;
+        }
         .shop { margin-top: 20px; }
         p { font-size: 18px; }
     </style>
@@ -27,6 +40,7 @@
 <body>
     <h1>Omega Incremental Game</h1>
     <p>Points: <span id="points">0</span></p>
+    <p>Value: ₹<span id="currency">0</span></p>
     <button onclick="gainPoints()">Gain Point</button>
 
     <div class="shop">
@@ -41,6 +55,8 @@
         let points = 0;
         let autoClickers = 0;
         let multiplier = 1;
+
+        const pointToINR = 0.6; // 1 point = 0.6 ₹
 
         // Device checker
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
@@ -75,6 +91,7 @@
             document.getElementById("points").textContent = formatOmega(points);
             document.getElementById("autoClickers").textContent = autoClickers;
             document.getElementById("multiplier").textContent = multiplier;
+            document.getElementById("currency").textContent = (points * pointToINR).toFixed(2);
         }
 
         function formatOmega(num){
