@@ -133,23 +133,18 @@ function formatNumberClass(num){
     let power = 1;
     let base = 1000;
 
+    // Keep dividing to find the correct ω power
     while(tier >= base*1000){
         tier = Math.floor(tier/1000);
         power++;
     }
+
     let remainder = num % (1000*Math.pow(1000,power-1));
     let notation, className;
 
-    if(power < 998){
+    // Proper ω powers progression
+    if(power <= 999){ // ω¹ → ω² → ω³ … → ω⁹⁹⁹
         notation = "ω" + (power>1?"^"+power:"") + " + " + remainder;
-        className = "omega";
-    }
-    else if(power === 998){
-        notation = "ω998 + " + remainder;
-        className = "omega";
-    }
-    else if(power === 999){
-        notation = "ω999 + " + remainder;
         className = "omega";
     }
     else if(power < 2000){
