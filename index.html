@@ -17,11 +17,16 @@ body.light button:hover { background-color:#bbb; }
 p { font-size:18px; }
 .gold { color:gold; font-weight:bold; }
 .prestige { color:purple; font-weight:bold; }
+.omega { color:gold; font-weight:bold; }
+.epsilon { color:cyan; font-weight:bold; }
+.zeta { color:lightgreen; font-weight:bold; }
+.veblen { color:magenta; font-weight:bold; }
+.buchholz { color:orange; font-weight:bold; }
 </style>
 </head>
 <body>
 <h1>Omega Incremental Game</h1>
-<p>₱: <span id="points">0</span></p>
+<p>₱: <span id="points" class="normal">0</span></p>
 <p>₹ Balance: <span id="currency" class="gold">0</span></p>
 <button onclick="gainPoints()">Gain ₱</button>
 <button onclick="tradePoints()">Trade ₱ for ₹</button>
@@ -43,28 +48,76 @@ p { font-size:18px; }
 </div>
 
 <script>
+// Game variables
 let points = 0, rupees = 0, autoClickers = 0, multiplier = 1, goldenUpgrades = 0;
 let prestigeLevel = 0, prestigeMultiplier = 0, lightMode = false;
 const tradeRate = 0.6;
 
 // Load saved data
 const saved = JSON.parse(localStorage.getItem('omegaGame')||'{}');
-points = saved.points||0; rupees = saved.rupees||0; autoClickers = saved.autoClickers||0;
-multiplier = saved.multiplier||1; goldenUpgrades = saved.goldenUpgrades||0;
-prestigeLevel = saved.prestigeLevel||0; prestigeMultiplier = saved.prestigeMultiplier||0;
-lightMode = saved.lightMode||false; if(lightMode) document.body.classList.add('light');
+points = saved.points||0;
+rupees = saved.rupees||0;
+autoClickers = saved.autoClickers||0;
+multiplier = saved.multiplier||1;
+goldenUpgrades = saved.goldenUpgrades||0;
+prestigeLevel = saved.prestigeLevel||0;
+prestigeMultiplier = saved.prestigeMultiplier||0;
+lightMode = saved.lightMode||false;
+if(lightMode) document.body.classList.add('light');
 
-function gainPoints(amount=1){ points += amount*(multiplier + prestigeMultiplier + 0.5*goldenUpgrades); updateDisplay(); saveGame(); }
-function tradePoints(){ if(points>0){ rupees += points*tradeRate; points=0; updateDisplay(); saveGame(); } }
+// Gain points
+function gainPoints(amount=1){
+    points += amount*(multiplier + prestigeMultiplier + 0.5*goldenUpgrades);
+    updateDisplay();
+    saveGame();
+}
+
+// Trade ₱ to ₹
+function tradePoints(){
+    if(points>0){
+        rupees += points*tradeRate;
+        points = 0;
+        updateDisplay();
+        saveGame();
+    }
+}
+
+// Shop functions
 function buyAutoClicker(){ if(points>=50){ points-=50; autoClickers++; updateDisplay(); saveGame(); } }
 function buyMultiplier(){ if(points>=100){ points-=100; multiplier++; updateDisplay(); saveGame(); } }
 function buyGoldenUpgrade(){ if(rupees>=50){ rupees-=50; goldenUpgrades++; updateDisplay(); saveGame(); } }
-function toggleMode(){ lightMode=!lightMode; document.body.classList.toggle('light'); saveGame(); }
-function prestige(){ if(points>=1000){ prestigeLevel++; points=0; rupees=0; autoClickers=0; multiplier=1; goldenUpgrades=0; updateDisplay(); saveGame(); alert("Prestige complete! Level: "+prestigeLevel); } }
-function buyPrestigeMultiplier(){ if(prestigeLevel>=1){ prestigeMultiplier += 0.5; prestigeLevel--; updateDisplay(); saveGame(); } }
 
+// Light/dark mode
+function toggleMode(){ lightMode=!lightMode; document.body.classList.toggle('light'); saveGame(); }
+
+// Prestige system
+function prestige(){
+    if(points>=1000){
+        prestigeLevel++;
+        points=0; rupees=0; autoClickers=0; multiplier=1; goldenUpgrades=0;
+        updateDisplay();
+        saveGame();
+        alert("Prestige complete! Level: "+prestigeLevel);
+    }
+}
+
+// Prestige upgrades
+function buyPrestigeMultiplier(){
+    if(prestigeLevel>=1){
+        prestigeMultiplier += 0.5;
+        prestigeLevel--;
+        updateDisplay();
+        saveGame();
+    }
+}
+
+// Display update
 function updateDisplay(){
-    document.getElementById("points").textContent = formatOmega(points);
+    const formatted = formatNumberClass(points);
+    const pointsSpan = document.getElementById("points");
+    pointsSpan.textContent = formatted.text;
+    pointsSpan.className = formatted.className;
+
     document.getElementById("currency").textContent = rupees.toFixed(2);
     document.getElementById("autoClickers").textContent = autoClickers;
     document.getElementById("multiplier").textContent = multiplier.toFixed(1);
@@ -73,16 +126,22 @@ function updateDisplay(){
     document.getElementById("prestigeMultiplier").textContent = prestigeMultiplier.toFixed(1);
 }
 
-function formatOmega(num){
-    if(num<=999) return num;
-    let tier=0,n=num;
-    while(n>999){ n-=1000; tier++; }
-    let omegaNotation = "";
-    if(tier<998) omegaNotation = "ω" + tier;
-    else if(tier<1000) omegaNotation = "ω998+";
-    else if(tier<1001) omegaNotation = "ω999+";
-    else omegaNotation = "ω²+";
-    return `${omegaNotation}${n}`;
+// Number class formatter with lowercase omega and symbols
+function formatNumberClass(num){
+    if(num <= 999) return { text: num, className: "normal" };
+    let tier = Math.floor(num / 1000);
+    let remainder = num % 1000;
+    let notation, className;
+
+    if(tier < 998){ notation = "ω" + (tier>1? tier:""); className="omega"; }  // lowercase omega
+    else if(tier === 998){ notation = "ω998"; className="omega"; }
+    else if(tier === 999){ notation = "ω999"; className="omega"; }
+    else if(tier < 2000){ notation = "ε"; className="epsilon"; }
+    else if(tier < 3000){ notation = "ζ"; className="zeta"; }
+    else if(tier < 4000){ notation = "Φ"; className="veblen"; }   // Veblen symbol
+    else{ notation = "Ψ"; className="buchholz"; }                // Buchholz symbol
+
+    return { text: `${notation} + ${remainder}`, className };
 }
 
 // Auto-clickers apply multiplier
@@ -92,8 +151,13 @@ setInterval(()=>{ if(autoClickers>0) gainPoints(autoClickers); },1000);
 let lastTouch=0; document.addEventListener('touchend',e=>{ const now=Date.now(); if(now-lastTouch<=300)e.preventDefault(); lastTouch=now; }, false);
 
 // Save game
-function saveGame(){ localStorage.setItem('omegaGame', JSON.stringify({ points, rupees, autoClickers, multiplier, goldenUpgrades, prestigeLevel, prestigeMultiplier, lightMode })); }
+function saveGame(){
+    localStorage.setItem('omegaGame', JSON.stringify({
+        points, rupees, autoClickers, multiplier, goldenUpgrades, prestigeLevel, prestigeMultiplier, lightMode
+    }));
+}
 
+// Initial display
 updateDisplay();
 </script>
 </body>
