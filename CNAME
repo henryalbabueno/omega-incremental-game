@@ -1,1 +1,4 @@
-play.omegaincremental.com
+Type: CNAME
+Name: play
+Value: henryalbabueno.github.io
+TTL: Auto
