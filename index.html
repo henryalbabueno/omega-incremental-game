@@ -126,7 +126,7 @@ function updateDisplay(){
     document.getElementById("prestigeMultiplier").textContent = prestigeMultiplier.toFixed(1);
 }
 
-// Number class formatter with lowercase omega and symbols
+// Number class formatter with lowercase omega and proper symbols
 function formatNumberClass(num){
     if(num <= 999) return { text: num, className: "normal" };
     let tier = Math.floor(num / 1000);
@@ -138,8 +138,8 @@ function formatNumberClass(num){
     else if(tier === 999){ notation = "ω999"; className="omega"; }
     else if(tier < 2000){ notation = "ε"; className="epsilon"; }
     else if(tier < 3000){ notation = "ζ"; className="zeta"; }
-    else if(tier < 4000){ notation = "Φ"; className="veblen"; }   // Veblen symbol
-    else{ notation = "Ψ"; className="buchholz"; }                // Buchholz symbol
+    else if(tier < 4000){ notation = "Φ"; className="veblen"; }
+    else{ notation = "Ψ"; className="buchholz"; }
 
     return { text: `${notation} + ${remainder}`, className };
 }
@@ -147,8 +147,13 @@ function formatNumberClass(num){
 // Auto-clickers apply multiplier
 setInterval(()=>{ if(autoClickers>0) gainPoints(autoClickers); },1000);
 
-// Prevent double-tap zoom
-let lastTouch=0; document.addEventListener('touchend',e=>{ const now=Date.now(); if(now-lastTouch<=300)e.preventDefault(); lastTouch=now; }, false);
+// Prevent double-tap zoom on mobile
+let lastTouch=0;
+document.addEventListener('touchend',e=>{
+    const now=Date.now();
+    if(now-lastTouch<=300) e.preventDefault();
+    lastTouch=now;
+}, false);
 
 // Save game
 function saveGame(){
