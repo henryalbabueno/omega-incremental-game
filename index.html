@@ -38,21 +38,22 @@ body.light button { background-color: #ddd; color: #111; }
 body.light button:hover { background-color: #bbb; }
 .shop { margin-top: 20px; }
 p { font-size: 18px; }
+.gold { color: gold; font-weight: bold; }
 </style>
 </head>
 <body>
 <h1>Omega Incremental Game</h1>
-<p>Points: <span id="points">0</span></p>
-<p>₹ Balance: <span id="currency">0</span></p>
-<button onclick="gainPoints()">Gain Point</button>
-<button onclick="tradePoints()">Trade All Points for ₹</button>
+<p>₱: <span id="points">0</span></p>
+<p>₹ Balance: <span id="currency" class="gold">0</span></p>
+<button onclick="gainPoints()">Gain ₱</button>
+<button onclick="tradePoints()">Trade ₱ for ₹</button>
 <button onclick="toggleMode()">Toggle Light Mode</button>
 
 <div class="shop">
 <h2>Shop</h2>
-<button onclick="buyAutoClicker()">Buy Auto-Clicker (50 pts)</button>
+<button onclick="buyAutoClicker()">Buy Auto-Clicker (50 ₱)</button>
 <p>Auto-Clickers: <span id="autoClickers">0</span></p>
-<button onclick="buyMultiplier()">Buy Multiplier (100 pts)</button>
+<button onclick="buyMultiplier()">Buy Multiplier (100 ₱)</button>
 <p>Multiplier: <span id="multiplier">1</span>x</p>
 </div>
 
@@ -141,6 +142,7 @@ document.addEventListener('touchend', e=>{
     lastTouch = now;
 }, false);
 
+// Save game state
 function saveGame(){
     localStorage.setItem('omegaGame', JSON.stringify({
         points, rupees, autoClickers, multiplier, lightMode
@@ -151,4 +153,4 @@ function saveGame(){
 updateDisplay();
 </script>
 </body>
-</html>   
+</html>
