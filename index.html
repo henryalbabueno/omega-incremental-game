@@ -51,7 +51,6 @@ p { font-size:18px; }
 // Game variables
 let points = 0, rupees = 0, autoClickers = 0, multiplier = 1, goldenUpgrades = 0;
 let prestigeLevel = 0, prestigeMultiplier = 0, lightMode = false;
-const tradeRate = 0.6;
 
 // Load saved data
 const saved = JSON.parse(localStorage.getItem('omegaGame')||'{}');
@@ -75,7 +74,7 @@ function gainPoints(amount=1){
 // Trade ₱ to ₹
 function tradePoints(){
     if(points>0){
-        rupees += points*tradeRate;
+        rupees += points*0.6;
         points = 0;
         updateDisplay();
         saveGame();
@@ -126,46 +125,63 @@ function updateDisplay(){
     document.getElementById("prestigeMultiplier").textContent = prestigeMultiplier.toFixed(1);
 }
 
-// Number class formatter with lowercase omega and proper symbols
+// Number formatting with ω powers → ε → ζ → φ → ψ
 function formatNumberClass(num){
+    if(num < 1000) return { text: num, className: "normal" };
+
+    let tier = num;
+    let power = 1;
+    let base = 1000;
+
+    while(tier >= base*1000){
+        tier = Math.floor(tier/1000);
+        power++;
+    }
+    let remainder = num % (1000*Math.pow(1000,power-1));
     let notation, className;
 
-    if(num < 1e3){
-        notation = num; className = "normal";
-    }
-    else if(num < 1e6){ // ω tiers
-        let tier = Math.floor(num / 1000);
-        let remainder = num % 1000;
-        notation = "ω" + (tier>1? tier:"") + " + " + remainder;
+    if(power < 998){
+        notation = "ω" + (power>1?"^"+power:"") + " + " + remainder;
         className = "omega";
     }
-    else if(num < 1e12){ // ε tiers
-        let tier = Math.floor(num / 1e6);
-        let remainder = Math.floor((num % 1e6)/1000);
-        notation = "ε" + tier + " + " + remainder;
+    else if(power === 998){
+        notation = "ω998 + " + remainder;
+        className = "omega";
+    }
+    else if(power === 999){
+        notation = "ω999 + " + remainder;
+        className = "omega";
+    }
+    else if(power < 2000){
+        notation = "ε + " + remainder;
         className = "epsilon";
     }
-    else if(num < 1e18){ // ζ tiers
-        let tier = Math.floor(num / 1e12);
-        let remainder = Math.floor((num % 1e12)/1e6);
-        notation = "ζ" + tier + " + " + remainder;
+    else if(power < 3000){
+        notation = "ζ + " + remainder;
         className = "zeta";
     }
-    else if(num < 1e24){ // φ tiers
-        let tier = Math.floor(num / 1e18);
-        let remainder = Math.floor((num % 1e18)/1e12);
-        notation = "φ" + tier + " + " + remainder;
+    else if(power < 4000){
+        notation = "φ + " + remainder;
         className = "veblen";
     }
-    else{ // ψ tiers
-        let tier = Math.floor(num / 1e24);
-        let remainder = Math.floor((num % 1e24)/1e18);
-        notation = "ψ" + tier + " + " + remainder;
+    else{
+        notation = "ψ + " + remainder;
         className = "buchholz";
     }
 
     return { text: notation, className };
 }
+
+// Auto-clickers apply multiplier
+setInterval(()=>{ if(autoClickers>0) gainPoints(autoClickers); },1000);
+
+// Prevent double-tap zoom on mobile
+let lastTouch=0;
+document.addEventListener('touchend',e=>{
+    const now=Date.now();
+    if(now-lastTouch<=300) e.preventDefault();
+    lastTouch=now;
+}, false);
 
 // Save game
 function saveGame(){
