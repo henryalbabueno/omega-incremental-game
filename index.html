@@ -21,6 +21,7 @@
         h1 { color: #ffcc00; }
         button { padding: 12px 24px; font-size: 16px; margin: 5px; cursor: pointer; }
         .shop { margin-top: 20px; }
+        p { font-size: 18px; }
     </style>
 </head>
 <body>
@@ -30,13 +31,16 @@
 
     <div class="shop">
         <h2>Shop</h2>
-        <button onclick="buyAutoClicker()">Buy Auto-Clicker (Cost: 50)</button>
+        <button onclick="buyAutoClicker()">Buy Auto-Clicker (50 pts)</button>
         <p>Auto-Clickers: <span id="autoClickers">0</span></p>
+        <button onclick="buyMultiplier()">Buy Multiplier (100 pts)</button>
+        <p>Multiplier: <span id="multiplier">1</span>x</p>
     </div>
 
     <script>
         let points = 0;
         let autoClickers = 0;
+        let multiplier = 1;
 
         // Device checker
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
@@ -47,7 +51,7 @@
         }
 
         function gainPoints(amount = 1) {
-            points += amount;
+            points += amount * multiplier;
             updateDisplay();
         }
 
@@ -59,9 +63,18 @@
             }
         }
 
+        function buyMultiplier() {
+            if(points >= 100){
+                points -= 100;
+                multiplier++;
+                updateDisplay();
+            }
+        }
+
         function updateDisplay(){
             document.getElementById("points").textContent = formatOmega(points);
             document.getElementById("autoClickers").textContent = autoClickers;
+            document.getElementById("multiplier").textContent = multiplier;
         }
 
         function formatOmega(num){
@@ -76,7 +89,6 @@
             let omegaNotation = "";
             if(tier < 10) omegaNotation = "ω" + (tier > 1 ? tier : "");
             else if(tier < 100) omegaNotation = "ω²";
-            // Extend tiers as needed
 
             return `${omegaNotation} + ${num}`;
         }
